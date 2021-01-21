@@ -52,6 +52,7 @@ ui <- f7Page(
       id = "tabs",
       f7Tab(
         tabName = "Schedule",
+        icon = f7Icon("calendar"),
         # skip link
         a(
           "If you're using a screen reader, you may find the official ",
@@ -62,7 +63,9 @@ ui <- f7Page(
         ),
         uiOutput("your_talks"),
 
-        br(), br(),
+        br(),
+        f7Flex(f7Button("options", "Options", fill = FALSE, size = "large")),
+        br(),
         tagList(
           reactable::reactableOutput("schedule"),
           htmltools::htmlDependency(
@@ -73,24 +76,22 @@ ui <- f7Page(
             stylesheet = "extra.css"
           )
         ),
-        f7Flex(f7Button("options", "Options", fill = FALSE, size = "large")),
         f7Sheet(
           id = "sheet1",
           orientation = "bottom",
           swipeToClose = TRUE,
           swipeToStep = TRUE,
           backdrop = TRUE,
-          f7Block(
-            f7Select("tz", "Your Timezone", choices = unlist(available_timezones()), selected = "UTC", width = "100%"),
-
-            f7Text("sch_search", "Search"),
-            f7Radio("sch_day", "Day", c("First" = "one", "Second" = "two", "All" = "all"), selected = c("all")),
-            f7Slider("sch_hours", "Hours in Your Time Zone", value = c(0, 24), min = 0, max = 24, step = 1),
-
-            f7SmartSelect("sch_type", "Talk Type", choices = sort(unique(schedule$type)), multiple = TRUE, openIn = "popup"),
-            f7SmartSelect("sch_topic", "Talk Topic", choices = sort(unique(schedule$topic)), multiple = TRUE, openIn = "popup"),
-            f7SmartSelect("sch_presenter", "Presenter", choices = sort(unique(schedule$name)), multiple = TRUE, openIn = "popup")
-          )
+          closeByOutsideClick = FALSE,
+          hiddenItems = tagList(
+            f7SmartSelect("sch_type", "Talk Type", choices = sort(unique(schedule$type)), multiple = TRUE, openIn = "sheet"),
+            f7SmartSelect("sch_topic", "Talk Topic", choices = sort(unique(schedule$topic)), multiple = TRUE, openIn = "sheet"),
+            f7SmartSelect("sch_presenter", "Presenter", choices = sort(unique(schedule$name)), multiple = TRUE, openIn = "sheet")
+          ),
+          f7Select("tz", "Your Timezone", choices = unlist(available_timezones()), selected = "UTC", width = "100%"),
+          f7Text("sch_search", "Search"),
+          f7Radio("sch_day", "Day", c("First" = "one", "Second" = "two", "All" = "all"), selected = c("all")),
+          f7Slider("sch_hours", "Hours in Your Time Zone", value = c(0, 24), min = 0, max = 24, step = 1)
         ),
         f7Popup(
           id = "more_info_popup",
@@ -99,6 +100,7 @@ ui <- f7Page(
       ),
       f7Tab(
         tabName = "About",
+        icon = f7Icon("info_round"),
         f7Block(
           inset = TRUE,
           strong = TRUE,
