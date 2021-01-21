@@ -470,9 +470,12 @@ server <- function(input, output, session) {
     )
   })
 
+  oldInfo <- reactiveVal(0)
+
   # Berk!!! evil is evil ...
   observeEvent(input$talk_more_info, {
-    req(input$talk_more_info)
+    req(oldInfo() != input$talk_more_info)
+    oldInfo(input$talk_more_info)
 
     talk <- schedule[!is.na(schedule$talk_id) & schedule$talk_id == as.numeric(input$talk_more_info), ]
     req(nrow(talk))
@@ -515,6 +518,8 @@ server <- function(input, output, session) {
         } else HTML(spkr_bio)
       )
     }
+
+
 
     f7Dialog(
       title = talk$title_text[[1]],
