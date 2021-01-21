@@ -206,17 +206,15 @@ ui <- f7Page(
             image = rstudio_hex("lubridate")$src,
             "Make working with dates in R just that little bit easier. https://lubridate.tidyverse.org."
           ),
-          f7Flex(
-            f7Card(
-              title = "calendar",
-              footer = "https://github.com/ATFutures/calendar",
-              "Create, read, write, and work with iCalander (.ics, .ical or similar) files in R."
-            ),
-            f7Card(
-              title = "reactable",
-              footer = "https://glin.github.io/reactable/index.html",
-              "Interactive data tables for R, based on the React Table library and made with reactR."
-            )
+          f7Card(
+            title = "calendar",
+            footer = "https://github.com/ATFutures/calendar",
+            "Create, read, write, and work with iCalander (.ics, .ical or similar) files in R."
+          ),
+          f7Card(
+            title = "reactable",
+            footer = "https://glin.github.io/reactable/index.html",
+            "Interactive data tables for R, based on the React Table library and made with reactR."
           ),
           f7Card(
             title = "prettyunits",
