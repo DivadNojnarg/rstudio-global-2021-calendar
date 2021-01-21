@@ -9,5 +9,5 @@ $(document).on('shiny:sessioninitialized', function() {
 $(document).on('shiny:sessioninitialized', function() {
   setTimeout(function() {
     $('.rt-pagination-nav').addClass('display-flex justify-content-space-between align-items-flex-start');
-  }, 1000);
+  }, 1500);
 });

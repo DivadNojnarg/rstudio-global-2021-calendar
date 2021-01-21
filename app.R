@@ -302,7 +302,10 @@ server <- function(input, output, session) {
 
   output$your_talks <- renderUI({
     req(selected_talks$stack())
-    tagList(
+    f7Segment(
+      shadow = TRUE,
+      container = "segment",
+      strong = TRUE,
       f7DownloadButton(
         "download_calendar",
         glue(
