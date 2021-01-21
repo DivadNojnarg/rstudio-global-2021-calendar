@@ -54,6 +54,16 @@ ui <- f7Page(
         tabName = "Schedule",
         icon = f7Icon("calendar"),
         # skip link
+        tags$head(
+          tags$style(
+            ".dialog {
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+          }
+          "
+          )
+        ),
         a(
           "If you're using a screen reader, you may find the official ",
           "RStudio Global conference website is better suited. Do you want to go there now?",
@@ -92,10 +102,6 @@ ui <- f7Page(
           f7Text("sch_search", "Search"),
           f7Radio("sch_day", "Day", c("First" = "one", "Second" = "two", "All" = "all"), selected = c("all")),
           f7Slider("sch_hours", "Hours in Your Time Zone", value = c(0, 24), min = 0, max = 24, step = 1)
-        ),
-        f7Popup(
-          id = "more_info_popup",
-          uiOutput("more_popup")
         )
       ),
       f7Tab(
@@ -465,7 +471,7 @@ server <- function(input, output, session) {
   })
 
   # Berk!!! evil is evil ...
-  output$more_popup <- renderUI({
+  observeEvent(input$talk_more_info, {
     req(input$talk_more_info)
 
     talk <- schedule[!is.na(schedule$talk_id) & schedule$talk_id == as.numeric(input$talk_more_info), ]
@@ -510,21 +516,21 @@ server <- function(input, output, session) {
       )
     }
 
-    tagList(
-      h2("Abstract"),
-      HTML(talk$abstract_html[[1]]),
-      lapply(seq_along(speaker_names), html_speaker_bio),
-      f7Link(
-        href = talk$url[[1]],
-        "Go To Talk Page"
+    f7Dialog(
+      title = talk$title_text[[1]],
+      type = "alert",
+      text = tagList(
+        h2("Abstract"),
+        HTML(talk$abstract_html[[1]]),
+        lapply(seq_along(speaker_names), html_speaker_bio),
+        f7Link(
+          href = talk$url[[1]],
+          "Go To Talk Page"
+        )
       )
     )
   })
 
-  observeEvent(input$talk_more_info, {
-    Sys.sleep(3)
-    updateF7Popup("more_info_popup")
-  })
 
   observeEvent(input$browser_tz, {
     if (input$browser_tz %in% OlsonNames()) {
