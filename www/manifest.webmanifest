@@ -1,0 +1,16 @@
+{
+  "name": "RStudio Conf 2021 App",
+  "short_name": "rstudio::global",
+  "description": "Program for Rstudio Conf 2021",
+  "lang": "en-US",
+  "start_url": "/rstudio-global-2021/",
+  "display": "minimal-ui",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "icons/icon-144.png",
+      "sizes": "144x144"
+    }
+  ]
+}
