@@ -255,14 +255,13 @@ server <- function(input, output, session) {
     tagList(
       f7DownloadButton(
         "download_calendar",
-        class = "d-block mb-3 btn-primary",
         glue(
           "Download Calendar ({n} talk{s})",
           n = length(selected_talks$stack()),
           s = if (length(selected_talks$stack()) == 1) "" else "s"
         )
       ),
-      p(class = "text-right", actionLink("reset", "Reset Selection"))
+      f7Button("reset", "Reset Selection")
     )
   })
 
@@ -339,13 +338,13 @@ server <- function(input, output, session) {
           cell = function(value) {
             value <- paste(value)
             glue(
-              '<span class="badge badge-pill badge-{type}">{value}</span>',
+              '<span class="badge color-{type}">{value}</span>',
               type = switch(
                 value,
-                keynote = "primary",
-                lightning = "warning",
-                talk = "success",
-                "light"
+                keynote = "blue",
+                lightning = "yellow",
+                talk = "green",
+                "gray"
               ),
               value = paste0(toupper(substr(value, 1, 1)), substr(value, 2, nchar(value)))
             )
@@ -359,13 +358,13 @@ server <- function(input, output, session) {
           cell = function(value) {
             if (!is.na(value)) {
               glue(
-                '<span class="badge badge-pill badge-{type}">{value}</span>',
+                '<span class="badge color-{type}">{value}</span>',
                 type = switch(
                   paste(value),
-                  A = "secondary",
-                  B = "info",
-                  C = "dark",
-                  "light"
+                  A = "gray",
+                  B = "lightblue",
+                  C = "black",
+                  "gray"
                 )
               )
             }
@@ -395,7 +394,7 @@ server <- function(input, output, session) {
           cell = function(value) {
             if (!isTruthy(value)) return()
             tags$button(
-              class = "btn btn-light btn-talk-more-info",
+              class = "button f7-action-button button-fill button-small btn-talk-more-info",
               `data-value` = value,
               title = "More info...",
               icon("info")
