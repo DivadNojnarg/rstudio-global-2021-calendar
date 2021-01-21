@@ -3,7 +3,7 @@
   "short_name": "rstudio::global",
   "description": "Program for Rstudio Conf 2021",
   "lang": "en-US",
-  "start_url": "/rstudio-global-2021/",
+  "start_url": "/rstudio-global-2021-calendar/",
   "display": "minimal-ui",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
