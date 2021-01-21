@@ -1,5 +1,5 @@
 library(shiny)
-library(bslib)
+library(shinyMobile)
 library(lubridate)
 library(calendar)
 library(reactable)
@@ -10,64 +10,50 @@ source("R/cards.R")
 
 Sys.setenv(TZ = "UTC")
 
-theme <- bs_theme(
-  version = 4,
-  bootswatch = "lux",
-  primary = "#447099",
-  secondary = "#75AADB",
-  success = "#A4C689",
-  warning = "#fdbe4b",
-  info = "#CBD4DD",
-  "font-size-base" = "1rem"
-)
-
 schedule <- readr::read_csv("data/schedule.csv")
 schedule$id <- seq_len(nrow(schedule))
 year(schedule$time_gmt) <- 2021
 schedule$name <- gsub("\n", ", ", schedule$name)
 
-ui <- navbarPage(
-  'rstudio::global("schedule")',
-  theme = theme,
-  collapsible = TRUE,
-  tabPanel(
-    title = "Schedule",
-    id = "schedule",
-    # skip link
-    a(
-      "If you're using a screen reader, you may find the official ",
-      "RStudio Global conference website is better suited. Do you want to go there now?",
-      class = "screenreader-text",
-      `tab-index` = 1,
-      href = "https://global.rstudio.com/student/all_events"
-    ),
-    div(
-      class = "container-fluid",
-      style = "max-width: 1600px",
-      div(
-        class = "row",
-        div(
-          class = "col-lg-3 order-1 order-lg-2 sidebar",
-          uiOutput("your_talks"),
-          selectInput("tz", "Your Timezone", choices = available_timezones(), selected = "UTC", width = "100%"),
-          div(
-            class = "row",
-            div(
-              class = "col-6 col-lg-12",
-              textInput("sch_search", "Search", width = "100%"),
-              radioButtons("sch_day", "Day", c("First" = "one", "Second" = "two", "All" = "all"), inline = TRUE, selected = c("all"), width = "100%"),
-              sliderInput("sch_hours", "Hours in Your Time Zone", value = c(0, 24), min = 0, max = 24, step = 1, post = ":00", width = "100%")
-            ),
-            div(
-              class = "col-6 col-lg-12",
-              selectizeInput("sch_type", "Talk Type", choices = sort(unique(schedule$type)), multiple = TRUE, width = "100%"),
-              selectizeInput("sch_topic", "Talk Topic", choices = sort(unique(schedule$topic)), multiple = TRUE, width = "100%"),
-              selectizeInput("sch_presenter", "Presenter", choices = sort(unique(schedule$name)), multiple = TRUE, width = "100%")
-            )
-          )
+ui <- f7Page(
+  title = 'rstudio::global("schedule")',
+  options = list(
+    theme = "auto",
+    version = "1.0.0",
+    taphold = TRUE,
+    #color = "#42f5a1",
+    filled = FALSE,
+    dark = FALSE
+  ),
+  f7TabLayout(
+    navbar = f7Navbar(title = 'rstudio::global("schedule")'),
+    f7Tabs(
+      id = "tabs",
+      swipeable = TRUE,
+      animated = FALSE,
+      f7Tab(
+        tabName = "Schedule",
+        # skip link
+        a(
+          "If you're using a screen reader, you may find the official ",
+          "RStudio Global conference website is better suited. Do you want to go there now?",
+          class = "screenreader-text",
+          `tab-index` = 1,
+          href = "https://global.rstudio.com/student/all_events"
         ),
-        div(
-          class = "col-lg-9 order-2 order-lg-1",
+        uiOutput("your_talks"),
+        f7Select("tz", "Your Timezone", choices = unlist(available_timezones()), selected = "UTC", width = "100%"),
+        f7Block(
+          f7Text("sch_search", "Search"),
+          f7Radio("sch_day", "Day", c("First" = "one", "Second" = "two", "All" = "all"), selected = c("all")),
+          f7Slider("sch_hours", "Hours in Your Time Zone", value = c(0, 24), min = 0, max = 24, step = 1)
+        ),
+        f7Block(
+          f7SmartSelect("sch_type", "Talk Type", choices = sort(unique(schedule$type)), multiple = TRUE, openIn = "popup"),
+          f7SmartSelect("sch_topic", "Talk Topic", choices = sort(unique(schedule$topic)), multiple = TRUE, openIn = "popup"),
+          f7SmartSelect("sch_presenter", "Presenter", choices = sort(unique(schedule$name)), multiple = TRUE, openIn = "popup")
+        ),
+        tagList(
           reactable::reactableOutput("schedule"),
           helpText(
             class = "mt-3",
@@ -85,106 +71,107 @@ ui <- navbarPage(
             stylesheet = "extra.css"
           )
         )
-      )
-    )
-  ),
-  tabPanel(
-    title = "About",
-    id = "about",
-    div(
-      class = "container-fluid",
-      style = "max-width: 900px",
-      h2(
-        class = "text-monospace",
-        "community %>% tidyr::gather()"
       ),
-      p("January 21, 2021 at 8am PT / 16:00 GMT / 01:00 JST"),
-      p(
-        "Our goal is to make rstudio::global(2021) our most inclusive and",
-        "global event, making the most of the freedom from geographical and",
-        "economic constraints that comes with an online event. That means that",
-        "the conference will be free, designed around participation from every",
-        "time zone, and have speakers from around the world."
-      ),
-      p(
-        a(
-          "Register Now",
-          href = "https://global.rstudio.com/student/authentication/register",
-          class = "btn btn-primary"
-        ),
-        a(
-          tags$a(
-            href = "https://global.rstudio.com/student/all_events",
-            class = "btn btn-success",
-            "Official Schedule"
+      f7Tab(
+        tabName = "About",
+        f7Block(
+          inset = TRUE,
+          strong = TRUE,
+          f7BlockTitle(
+            title = "community %>% tidyr::gather()"
+          ),
+          p("January 21, 2021 at 8am PT / 16:00 GMT / 01:00 JST"),
+          p(
+            "Our goal is to make rstudio::global(2021) our most inclusive and",
+            "global event, making the most of the freedom from geographical and",
+            "economic constraints that comes with an online event. That means that",
+            "the conference will be free, designed around participation from every",
+            "time zone, and have speakers from around the world."
+          ),
+          p(
+            a(
+              "Register Now",
+              href = "https://global.rstudio.com/student/authentication/register",
+              class = "btn btn-primary"
+            ),
+            a(
+              tags$a(
+                href = "https://global.rstudio.com/student/all_events",
+                class = "btn btn-success",
+                "Official Schedule"
+              )
+            )
+          ),
+          tags$hr(class = "my-4"),
+          h2("About this app", class = "text-monospace"),
+          p(
+            HTML("This app was built with &#x2665;&#xFE0F; and &#x2615; by"),
+            tags$a(href = "https://www.garrickadenbuie.com", "Garrick Aden-Buie", .noWS = "after"),
+            ", using the packages listed below. Check out",
+            tags$a(href = "https://github.com/gadenbuie/rstudio-global-2021-calendar", "the full source code"),
+            "on Github."
+          ),
+          div(
+            class = "d-flex flex-wrap align-items-stretch justify-content-between",
+            f7ExpandableCard(
+              title = "shiny",
+              fullBackground = TRUE,
+              image = rstudio_hex("shiny")$src,
+              subtitle = "https://shiny.rstudio.com",
+              "Shiny is an R package that makes it easy to build interactive web apps straight from R."
+            ),
+            f7ExpandableCard(
+              title = "renv",
+              fullBackground = TRUE,
+              image = rstudio_hex("renv")$src,
+              subtitle = "https://rstudio.github.io/renv",
+              "The renv package helps you create reproducible environments for your R projects. Use renv to make your R projects more: isolated, portable, and reproducible."
+            ),
+            f7ExpandableCard(
+              title = "bslib",
+              fullBackground = TRUE,
+              image = "https://camo.githubusercontent.com/3a4d3fbd6458e2fe5c0f5fb2df62878b9f74c2531c340a37599d875ae43a7d0e/68747470733a2f2f692e696d6775722e636f6d2f4b4c4b793173302e676966",
+              subtitle = "https://rstudio.github.io/bslib/",
+              "Tools for creating custom Bootstrap themes, making it easier to style Shiny apps & R Markdown documents directly from R without writing unruly CSS and HTML."
+            ),
+            f7ExpandableCard(
+              title = "R6",
+              fullBackground = TRUE,
+              image = rstudio_hex("R6")$src,
+              subtitle = "https://r6.r-lib.org/",
+              "Encapsulated object-oriented programming for R."
+            ),
+            f7ExpandableCard(
+              title = "glue",
+              fullBackground = TRUE,
+              image = rstudio_hex("glue")$src,
+              subtitle = "https://glue.tidyverse.org",
+              "Glue strings to data in R. Small, fast, dependency free interpreted string literals."
+            ),
+            f7ExpandableCard(
+              title = "lubridate",
+              fullBackground = TRUE,
+              image = rstudio_hex("lubridate")$src,
+              subtitle = "https://lubridate.tidyverse.org",
+              "Make working with dates in R just that little bit easier."
+            ),
+            f7Card(
+              title = "calendar",
+              footer = "https://github.com/ATFutures/calendar",
+              "Create, read, write, and work with iCalander (.ics, .ical or similar) files in R."
+            ),
+            f7Card(
+              title = "reactable",
+              footer = "https://glin.github.io/reactable/index.html",
+              "Interactive data tables for R, based on the React Table library and made with reactR."
+            ),
+            f7Card(
+              title = "prettyunits",
+              footer = "https://github.com/r-lib/prettyunits",
+              "Pretty, human readable formatting of quantities."
+            ),
           )
         )
-      ),
-      tags$hr(class = "my-4"),
-      h2("About this app", class = "text-monospace"),
-      p(
-        HTML("This app was built with &#x2665;&#xFE0F; and &#x2615; by"),
-        tags$a(href = "https://www.garrickadenbuie.com", "Garrick Aden-Buie", .noWS = "after"),
-        ", using the packages listed below. Check out",
-        tags$a(href = "https://github.com/gadenbuie/rstudio-global-2021-calendar", "the full source code"),
-        "on Github."
-      ),
-      div(
-        class = "d-flex flex-wrap align-items-stretch justify-content-between",
-        card(
-          "shiny",
-          rstudio_hex("shiny"),
-          "https://shiny.rstudio.com",
-          "Shiny is an R package that makes it easy to build interactive web apps straight from R."
-        ),
-        card(
-          "renv",
-          rstudio_hex("renv"),
-          "https://rstudio.github.io/renv",
-          "The renv package helps you create reproducible environments for your R projects. Use renv to make your R projects more: isolated, portable, and reproducible."
-        ),
-        card(
-          "bslib",
-          list(src = "https://camo.githubusercontent.com/3a4d3fbd6458e2fe5c0f5fb2df62878b9f74c2531c340a37599d875ae43a7d0e/68747470733a2f2f692e696d6775722e636f6d2f4b4c4b793173302e676966", alt = "Animated gif of bslib features"),
-          "https://rstudio.github.io/bslib/",
-          "Tools for creating custom Bootstrap themes, making it easier to style Shiny apps & R Markdown documents directly from R without writing unruly CSS and HTML."
-        ),
-        card(
-          "R6",
-          rstudio_hex("R6"),
-          "https://r6.r-lib.org/",
-          "Encapsulated object-oriented programming for R."
-        ),
-        card(
-          "glue",
-          rstudio_hex("glue"),
-          "https://glue.tidyverse.org",
-          "Glue strings to data in R. Small, fast, dependency free interpreted string literals."
-        ),
-        card(
-          "lubridate",
-          rstudio_hex("lubridate"),
-          "https://lubridate.tidyverse.org",
-          "Make working with dates in R just that little bit easier."
-        ),
-        card(
-          "calendar",
-          NULL,
-          "https://github.com/ATFutures/calendar",
-          "Create, read, write, and work with iCalander (.ics, .ical or similar) files in R."
-        ),
-        card(
-          "reactable",
-          NULL,
-          "https://glin.github.io/reactable/index.html",
-          "Interactive data tables for R, based on the React Table library and made with reactR."
-        ),
-        card(
-          "prettyunits",
-          NULL,
-          "https://github.com/r-lib/prettyunits",
-          "Pretty, human readable formatting of quantities."
-        ),
       )
     )
   )
@@ -266,7 +253,7 @@ server <- function(input, output, session) {
   output$your_talks <- renderUI({
     req(selected_talks$stack())
     tagList(
-      downloadButton(
+      f7DownloadButton(
         "download_calendar",
         class = "d-block mb-3 btn-primary",
         glue(
@@ -493,30 +480,25 @@ server <- function(input, output, session) {
       )
     }
 
-    showModal(
-      modalDialog(
-        size = "l",
-        easyClose = TRUE,
-        title = talk$title_text[[1]],
-        h2("Abstract"),
-        HTML(talk$abstract_html[[1]]),
-        lapply(seq_along(speaker_names), html_speaker_bio),
-        footer = list(
-          tags$a(
-            href = talk$url[[1]],
-            class = "btn btn-success",
-            target = "_blank",
-            "Go To Talk Page"
-          ),
-          modalButton("OK")
-        )
-      )
-    )
+    #f7Popup(
+    #  title = talk$title_text[[1]],
+    #  h2("Abstract"),
+    #  HTML(talk$abstract_html[[1]]),
+    #  lapply(seq_along(speaker_names), html_speaker_bio),
+    #  f7Flex(
+    #    tags$a(
+    #      href = talk$url[[1]],
+    #      class = "btn btn-success",
+    #      target = "_blank",
+    #      "Go To Talk Page"
+    #    )
+    #  )
+    #)
   })
 
   observeEvent(input$browser_tz, {
     if (input$browser_tz %in% OlsonNames()) {
-      updateSelectInput(session, "tz", selected = input$browser_tz)
+      updateF7Select("tz", selected = input$browser_tz)
     }
   })
 }
