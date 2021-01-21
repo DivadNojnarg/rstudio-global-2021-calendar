@@ -8,6 +8,18 @@ source("R/stack.R")
 source("R/tz.R")
 source("R/cards.R")
 
+options(reactable.theme = reactableTheme(
+  color = "hsl(233, 9%, 87%)",
+  backgroundColor = "#202020",
+  borderColor = "hsl(233, 9%, 22%)",
+  stripedColor = "hsl(233, 12%, 22%)",
+  highlightColor = "hsl(233, 12%, 24%)",
+  inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+  selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+  pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+  pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
+))
+
 Sys.setenv(TZ = "UTC")
 
 schedule <- readr::read_csv("data/schedule.csv")
@@ -16,53 +28,43 @@ year(schedule$time_gmt) <- 2021
 schedule$name <- gsub("\n", ", ", schedule$name)
 
 ui <- f7Page(
-  title = 'rstudio::global("schedule")',
+  title = 'rstudio global',
   options = list(
     theme = "auto",
     version = "1.0.0",
     taphold = TRUE,
     #color = "#42f5a1",
     filled = FALSE,
-    dark = FALSE
+    dark = TRUE
   ),
   f7TabLayout(
-    navbar = f7Navbar(title = 'rstudio::global("schedule")'),
+    navbar = f7Navbar(
+      title = f7Link(
+        href = "https://global.rstudio.com",
+        code("rstudio::global")
+      ),
+      hairline = TRUE,
+      shadow = TRUE,
+      bigger = TRUE,
+      transparent = TRUE
+    ),
     f7Tabs(
       id = "tabs",
-      swipeable = TRUE,
-      animated = FALSE,
       f7Tab(
         tabName = "Schedule",
         # skip link
         a(
           "If you're using a screen reader, you may find the official ",
           "RStudio Global conference website is better suited. Do you want to go there now?",
-          class = "screenreader-text",
+          class = "screenreader-text external",
           `tab-index` = 1,
           href = "https://global.rstudio.com/student/all_events"
         ),
         uiOutput("your_talks"),
-        f7Select("tz", "Your Timezone", choices = unlist(available_timezones()), selected = "UTC", width = "100%"),
-        f7Block(
-          f7Text("sch_search", "Search"),
-          f7Radio("sch_day", "Day", c("First" = "one", "Second" = "two", "All" = "all"), selected = c("all")),
-          f7Slider("sch_hours", "Hours in Your Time Zone", value = c(0, 24), min = 0, max = 24, step = 1)
-        ),
-        f7Block(
-          f7SmartSelect("sch_type", "Talk Type", choices = sort(unique(schedule$type)), multiple = TRUE, openIn = "popup"),
-          f7SmartSelect("sch_topic", "Talk Topic", choices = sort(unique(schedule$topic)), multiple = TRUE, openIn = "popup"),
-          f7SmartSelect("sch_presenter", "Presenter", choices = sort(unique(schedule$name)), multiple = TRUE, openIn = "popup")
-        ),
+
+        br(), br(),
         tagList(
           reactable::reactableOutput("schedule"),
-          helpText(
-            class = "mt-3",
-            tags$a(
-              href = "https://global.rstudio.com",
-              code("rstudio::global")
-            ),
-            "will be held Thursday 2021-01-21 and Friday 2021-01-22."
-          ),
           htmltools::htmlDependency(
             name = "rstudio-global-calendar",
             version = "0.0.1",
@@ -70,6 +72,29 @@ ui <- f7Page(
             script = "extra.js",
             stylesheet = "extra.css"
           )
+        ),
+        f7Flex(f7Button("options", "Options", fill = FALSE, size = "large")),
+        f7Sheet(
+          id = "sheet1",
+          orientation = "bottom",
+          swipeToClose = TRUE,
+          swipeToStep = TRUE,
+          backdrop = TRUE,
+          f7Block(
+            f7Select("tz", "Your Timezone", choices = unlist(available_timezones()), selected = "UTC", width = "100%"),
+
+            f7Text("sch_search", "Search"),
+            f7Radio("sch_day", "Day", c("First" = "one", "Second" = "two", "All" = "all"), selected = c("all")),
+            f7Slider("sch_hours", "Hours in Your Time Zone", value = c(0, 24), min = 0, max = 24, step = 1),
+
+            f7SmartSelect("sch_type", "Talk Type", choices = sort(unique(schedule$type)), multiple = TRUE, openIn = "popup"),
+            f7SmartSelect("sch_topic", "Talk Topic", choices = sort(unique(schedule$topic)), multiple = TRUE, openIn = "popup"),
+            f7SmartSelect("sch_presenter", "Presenter", choices = sort(unique(schedule$name)), multiple = TRUE, openIn = "popup")
+          )
+        ),
+        f7Popup(
+          id = "more_info_popup",
+          uiOutput("more_popup")
         )
       ),
       f7Tab(
@@ -128,11 +153,11 @@ ui <- f7Page(
               "The renv package helps you create reproducible environments for your R projects. Use renv to make your R projects more: isolated, portable, and reproducible."
             ),
             f7ExpandableCard(
-              title = "bslib",
+              title = "shinyMobile",
               fullBackground = TRUE,
-              image = "https://camo.githubusercontent.com/3a4d3fbd6458e2fe5c0f5fb2df62878b9f74c2531c340a37599d875ae43a7d0e/68747470733a2f2f692e696d6775722e636f6d2f4b4c4b793173302e676966",
-              subtitle = "https://rstudio.github.io/bslib/",
-              "Tools for creating custom Bootstrap themes, making it easier to style Shiny apps & R Markdown documents directly from R without writing unruly CSS and HTML."
+              image = "https://rinterface.github.io/shinyMobile/reference/figures/logo.png",
+              subtitle = "https://rinterface.github.io/shinyMobile/",
+              "Develop outstanding {shiny} apps for iOS, Android, desktop as well as beautiful {shiny} gadgets. {shinyMobile} is built on top of the latest Framework7 template."
             ),
             f7ExpandableCard(
               title = "R6",
@@ -311,6 +336,7 @@ server <- function(input, output, session) {
       defaultSelected = which(schedule_view()$id %in% isolate(selected_talks$stack())),
       highlight = TRUE,
       borderless = TRUE,
+      paginationType = "simple",
       columns = list(
         talk_id = colDef(show = FALSE),
         id = colDef(show = FALSE),
@@ -380,7 +406,7 @@ server <- function(input, output, session) {
             function(cellInfo) {
               var url = cellInfo.row['url']
               return url ?
-                '<a href=\"' + url + '\" target=\"_blank\" title=\"Go to Official Talk Page\">' + cellInfo.value + '<a>' :
+                '<a class=\"external\" href=\"' + url + '\" target=\"_blank\" title=\"Go to Official Talk Page\">' + cellInfo.value + '<a>' :
                 cellInfo.value
             }
           ")
@@ -394,7 +420,7 @@ server <- function(input, output, session) {
           cell = function(value) {
             if (!isTruthy(value)) return()
             tags$button(
-              class = "button f7-action-button button-fill button-small btn-talk-more-info",
+              class = "button button-small btn-talk-more-info",
               `data-value` = value,
               title = "More info...",
               icon("info")
@@ -403,14 +429,14 @@ server <- function(input, output, session) {
           style = list(
             position = "sticky",
             left = 30,
-            background = "#fff",
+            background = "#202020",
             zIndex = 1,
             borderRight = "2px solid #eee"
           ),
           headerStyle = list(
             position = "sticky",
             left = 30,
-            background = "#fff",
+            background = "#202020",
             zIndex = 1,
             borderRight = "2px solid #eee"
           )
@@ -421,14 +447,14 @@ server <- function(input, output, session) {
             cursor = "pointer",
             position = "sticky",
             left = 0,
-            background = "#fff",
+            background = "#202020",
             zIndex = 1
           ),
           headerStyle = list(
             cursor = "pointer",
             position = "sticky",
             left = 0,
-            background = "#fff",
+            background = "#202020",
             zIndex = 1
           )
         )
@@ -436,7 +462,10 @@ server <- function(input, output, session) {
     )
   })
 
-  observeEvent(input$talk_more_info, {
+  # Berk!!! evil is evil ...
+  output$more_popup <- renderUI({
+    req(input$talk_more_info)
+
     talk <- schedule[!is.na(schedule$talk_id) & schedule$talk_id == as.numeric(input$talk_more_info), ]
     req(nrow(talk))
 
@@ -479,26 +508,31 @@ server <- function(input, output, session) {
       )
     }
 
-    #f7Popup(
-    #  title = talk$title_text[[1]],
-    #  h2("Abstract"),
-    #  HTML(talk$abstract_html[[1]]),
-    #  lapply(seq_along(speaker_names), html_speaker_bio),
-    #  f7Flex(
-    #    tags$a(
-    #      href = talk$url[[1]],
-    #      class = "btn btn-success",
-    #      target = "_blank",
-    #      "Go To Talk Page"
-    #    )
-    #  )
-    #)
+    tagList(
+      h2("Abstract"),
+      HTML(talk$abstract_html[[1]]),
+      lapply(seq_along(speaker_names), html_speaker_bio),
+      f7Link(
+        href = talk$url[[1]],
+        "Go To Talk Page"
+      )
+    )
+  })
+
+  observeEvent(input$talk_more_info, {
+    Sys.sleep(3)
+    updateF7Popup("more_info_popup")
   })
 
   observeEvent(input$browser_tz, {
     if (input$browser_tz %in% OlsonNames()) {
       updateF7Select("tz", selected = input$browser_tz)
     }
+  })
+
+
+  observeEvent(input$options, {
+    updateF7Sheet("sheet1")
   })
 }
 
