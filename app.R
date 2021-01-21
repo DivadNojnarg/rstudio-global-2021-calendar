@@ -29,6 +29,7 @@ schedule$name <- gsub("\n", ", ", schedule$name)
 
 ui <- f7Page(
   title = 'rstudio global',
+  allowPWA = TRUE,
   options = list(
     theme = "auto",
     version = "1.0.0",
