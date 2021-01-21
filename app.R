@@ -61,7 +61,20 @@ ui <- f7Page(
             width: 300px;
             max-height: 400px;
             overflow-y: auto;
-          }
+            }
+
+            .swipe-handler:after {
+              content: '';
+              width: 36px;
+              height: 6px;
+              position: absolute;
+              left: 50%;
+              top: 50%;
+              margin-left: -18px;
+              margin-top: -3px;
+              border-radius: 3px;
+              background: #666;
+            }
           "
           )
         ),
@@ -74,9 +87,8 @@ ui <- f7Page(
         ),
         uiOutput("your_talks"),
 
-        br(),
         f7Flex(f7Button("options", "Options", fill = FALSE, size = "large")),
-        br(),
+
         tagList(
           f7Block(
             inset = TRUE,
