@@ -78,7 +78,10 @@ ui <- f7Page(
         f7Flex(f7Button("options", "Options", fill = FALSE, size = "large")),
         br(),
         tagList(
-          reactable::reactableOutput("schedule"),
+          f7Block(
+            inset = TRUE,
+            reactable::reactableOutput("schedule")
+          ),
           htmltools::htmlDependency(
             name = "rstudio-global-calendar",
             version = "0.0.1",
