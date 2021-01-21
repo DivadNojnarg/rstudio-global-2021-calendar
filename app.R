@@ -115,7 +115,8 @@ ui <- f7Page(
           inset = TRUE,
           strong = TRUE,
           f7BlockTitle(
-            title = "community %>% tidyr::gather()"
+            title = "community %>% tidyr::gather()",
+            size = "large"
           ),
           p("January 21, 2021 at 8am PT / 16:00 GMT / 01:00 JST"),
           p(
@@ -125,73 +126,75 @@ ui <- f7Page(
             "the conference will be free, designed around participation from every",
             "time zone, and have speakers from around the world."
           ),
-          p(
-            a(
+          f7Flex(
+            f7Link(
               "Register Now",
-              href = "https://global.rstudio.com/student/authentication/register",
-              class = "btn btn-primary"
+              href = "https://global.rstudio.com/student/authentication/register"
             ),
-            a(
-              tags$a(
-                href = "https://global.rstudio.com/student/all_events",
-                class = "btn btn-success",
-                "Official Schedule"
-              )
+            f7Link(
+              href = "https://global.rstudio.com/student/all_events",
+              "Official Schedule"
             )
-          ),
-          tags$hr(class = "my-4"),
-          h2("About this app", class = "text-monospace"),
+          )
+        ),
+
+        f7Block(
+          inset = TRUE,
+          strong = TRUE,
+          f7BlockTitle("About this app", size = "large"),
           p(
             HTML("This app was built with &#x2665;&#xFE0F; and &#x2615; by"),
-            tags$a(href = "https://www.garrickadenbuie.com", "Garrick Aden-Buie", .noWS = "after"),
-            ", using the packages listed below. Check out",
-            tags$a(href = "https://github.com/gadenbuie/rstudio-global-2021-calendar", "the full source code"),
+            f7Link(href = "https://divadnojnarg.github.io", "David Granjon"),
+            ", using the packages listed below. Check out the original app by Garrick Aden-Buie ",
+            f7Link(href = "https://github.com/gadenbuie/rstudio-global-2021-calendar", "the full source code"),
             "on Github."
+          )
+        ),
+
+        f7Block(
+          f7ExpandableCard(
+            title = "shiny",
+            fullBackground = TRUE,
+            image = rstudio_hex("shiny")$src,
+            "Shiny is an R package that makes it easy to build interactive web apps straight from R.
+            https://shiny.rstudio.com."
           ),
-          div(
-            class = "d-flex flex-wrap align-items-stretch justify-content-between",
-            f7ExpandableCard(
-              title = "shiny",
-              fullBackground = TRUE,
-              image = rstudio_hex("shiny")$src,
-              subtitle = "https://shiny.rstudio.com",
-              "Shiny is an R package that makes it easy to build interactive web apps straight from R."
-            ),
-            f7ExpandableCard(
-              title = "renv",
-              fullBackground = TRUE,
-              image = rstudio_hex("renv")$src,
-              subtitle = "https://rstudio.github.io/renv",
-              "The renv package helps you create reproducible environments for your R projects. Use renv to make your R projects more: isolated, portable, and reproducible."
-            ),
-            f7ExpandableCard(
-              title = "shinyMobile",
-              fullBackground = TRUE,
-              image = "https://rinterface.github.io/shinyMobile/reference/figures/logo.png",
-              subtitle = "https://rinterface.github.io/shinyMobile/",
-              "Develop outstanding {shiny} apps for iOS, Android, desktop as well as beautiful {shiny} gadgets. {shinyMobile} is built on top of the latest Framework7 template."
-            ),
-            f7ExpandableCard(
-              title = "R6",
-              fullBackground = TRUE,
-              image = rstudio_hex("R6")$src,
-              subtitle = "https://r6.r-lib.org/",
-              "Encapsulated object-oriented programming for R."
-            ),
-            f7ExpandableCard(
-              title = "glue",
-              fullBackground = TRUE,
-              image = rstudio_hex("glue")$src,
-              subtitle = "https://glue.tidyverse.org",
-              "Glue strings to data in R. Small, fast, dependency free interpreted string literals."
-            ),
-            f7ExpandableCard(
-              title = "lubridate",
-              fullBackground = TRUE,
-              image = rstudio_hex("lubridate")$src,
-              subtitle = "https://lubridate.tidyverse.org",
-              "Make working with dates in R just that little bit easier."
-            ),
+          f7ExpandableCard(
+            title = "renv",
+            fullBackground = TRUE,
+            image = rstudio_hex("renv")$src,
+            "The renv package helps you create reproducible environments for your R projects.
+            Use renv to make your R projects more: isolated, portable, and reproducible.
+            https://rstudio.github.io/renv."
+          ),
+          f7ExpandableCard(
+            title = "shinyMobile",
+            fullBackground = TRUE,
+            image = "https://rinterface.github.io/shinyMobile/reference/figures/logo.png",
+            "Develop outstanding {shiny} apps for iOS, Android, desktop as well as beautiful
+            {shiny} gadgets. {shinyMobile} is built on top of the latest Framework7 template.
+            https://rinterface.github.io/shinyMobile/."
+          ),
+          f7ExpandableCard(
+            title = "R6",
+            fullBackground = TRUE,
+            image = rstudio_hex("R6")$src,
+            "Encapsulated object-oriented programming for R. https://r6.r-lib.org/."
+          ),
+          f7ExpandableCard(
+            title = "glue",
+            fullBackground = TRUE,
+            image = rstudio_hex("glue")$src,
+            "Glue strings to data in R. Small, fast, dependency free interpreted string literals.
+            https://glue.tidyverse.org."
+          ),
+          f7ExpandableCard(
+            title = "lubridate",
+            fullBackground = TRUE,
+            image = rstudio_hex("lubridate")$src,
+            "Make working with dates in R just that little bit easier. https://lubridate.tidyverse.org."
+          ),
+          f7Flex(
             f7Card(
               title = "calendar",
               footer = "https://github.com/ATFutures/calendar",
@@ -201,12 +204,12 @@ ui <- f7Page(
               title = "reactable",
               footer = "https://glin.github.io/reactable/index.html",
               "Interactive data tables for R, based on the React Table library and made with reactR."
-            ),
-            f7Card(
-              title = "prettyunits",
-              footer = "https://github.com/r-lib/prettyunits",
-              "Pretty, human readable formatting of quantities."
-            ),
+            )
+          ),
+          f7Card(
+            title = "prettyunits",
+            footer = "https://github.com/r-lib/prettyunits",
+            "Pretty, human readable formatting of quantities."
           )
         )
       )
