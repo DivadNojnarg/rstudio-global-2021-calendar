@@ -20,7 +20,7 @@ Shiny.addCustomMessageHandler('global-theme-setup', function(message) {
     $('.swipe-handler').css('background-color', '');
     $('.sheet-modal').css('background-color', '#fff');
   } else {
-    $('.page').css('background-color', '#1b1b1d');
+    $('.page').css('background-color', '#131313');
     $('.swipe-handler').css('background-color', '#1b1b1d');
     $('.sheet-modal').css('background-color', '#1b1a1d');
   }
