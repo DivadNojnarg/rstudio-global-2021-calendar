@@ -12,6 +12,19 @@ $(document).on('shiny:sessioninitialized', function() {
   }, 1500);
 });
 
+// Useful to reset theme
+let firstConnect = true;
+$(document).on('shiny:disconnected', function() {
+  firstConnect = false;
+});
+// reset theme
+$(document).on('shiny:connected', function() {
+  if (!firstConnect) {
+    app.methods.toggleDarkTheme();
+    $('.bg-color-black').click();
+  }
+});
+
 
 Shiny.addCustomMessageHandler('global-theme-setup', function(message) {
   app.methods.toggleDarkTheme();

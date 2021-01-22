@@ -583,9 +583,9 @@ server <- function(input, output, session) {
 
   observeEvent(input$options, {
     updateF7Sheet("sheet1")
-  })
+  }, ignoreInit = TRUE)
 
-  observe({
+  observeEvent(input$globalTheme, {
     session$sendCustomMessage(
       type = "global-theme-setup",
       message = input$globalTheme
