@@ -25,7 +25,6 @@ $(document).on('shiny:connected', function() {
   }
 });
 
-
 Shiny.addCustomMessageHandler('global-theme-setup', function(message) {
   app.methods.toggleDarkTheme();
   if (message === 'light') {
@@ -58,4 +57,11 @@ $(function(){
     $('#globalThemeLight').addClass('disabled');
     Shiny.setInputValue('globalTheme', 'dark');
   });
+
+  $(document).on('click', '.btn-talk-more-info, .btn-talk-more-info i', function() {
+    setTimeout(function() {
+      $('p.speaker-links a').addClass('external');
+    }, 500);
+  });
+
 });
