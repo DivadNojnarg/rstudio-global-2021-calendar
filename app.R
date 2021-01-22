@@ -8,18 +8,6 @@ source("R/stack.R")
 source("R/tz.R")
 source("R/cards.R")
 
-options(reactable.theme = reactableTheme(
-  color = "hsl(233, 9%, 87%)",
-  backgroundColor = "#202020",
-  borderColor = "hsl(233, 9%, 22%)",
-  stripedColor = "hsl(233, 12%, 22%)",
-  highlightColor = "hsl(233, 12%, 24%)",
-  inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-  selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-  pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
-  pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
-))
-
 Sys.setenv(TZ = "UTC")
 
 schedule <- readr::read_csv("data/schedule.csv")
@@ -110,10 +98,26 @@ ui <- f7Page(
           backdrop = TRUE,
           closeByOutsideClick = FALSE,
           hiddenItems = tagList(
+            f7BlockTitle(title = "Other", size = "medium"),
             f7SmartSelect("sch_type", "Talk Type", choices = sort(unique(schedule$type)), multiple = TRUE, openIn = "sheet"),
             f7SmartSelect("sch_topic", "Talk Topic", choices = sort(unique(schedule$topic)), multiple = TRUE, openIn = "sheet"),
             f7SmartSelect("sch_presenter", "Presenter", choices = sort(unique(schedule$name)), multiple = TRUE, openIn = "sheet")
           ),
+          f7BlockTitle(title = "Theme", size = "medium"),
+          f7Block(
+            tags$div(
+              class = "row",
+              tags$div(
+                class = "col-50 bg-color-white demo-theme-picker",
+                f7checkBox(inputId = "globalThemeLight", label = "")
+              ),
+              tags$div(
+                class = "col-50 bg-color-black demo-theme-picker",
+                f7checkBox(inputId = "globalThemeDark", label = "", value = TRUE)
+              )
+            )
+          ),
+          f7BlockTitle(title = "Configuration", size = "medium"),
           f7Select("tz", "Your Timezone", choices = unlist(available_timezones()), selected = "UTC", width = "100%"),
           f7Text("sch_search", "Search"),
           f7Radio("sch_day", "Day", c("First" = "one", "Second" = "two", "All" = "all"), selected = c("all")),
@@ -360,6 +364,19 @@ server <- function(input, output, session) {
     ignore_schedule_change(TRUE)
     reactable(
       schedule_view(),
+      theme = if (input$globalTheme == "dark" || is.null(input$globalTheme)) {
+        reactableTheme(
+          color = "hsl(233, 9%, 87%)",
+          backgroundColor = "#202020",
+          borderColor = "hsl(233, 9%, 22%)",
+          stripedColor = "hsl(233, 12%, 22%)",
+          highlightColor = "hsl(233, 12%, 24%)",
+          inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+          selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+          pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+          pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
+        )
+      },
       selection = "multiple",
       defaultSelected = which(schedule_view()$id %in% isolate(selected_talks$stack())),
       highlight = TRUE,
@@ -457,14 +474,14 @@ server <- function(input, output, session) {
           style = list(
             position = "sticky",
             left = 30,
-            background = "#202020",
+            background = if (input$globalTheme == "dark" || is.null(input$globalTheme)) "#202020" else "#fff",
             zIndex = 1,
             borderRight = "2px solid #eee"
           ),
           headerStyle = list(
             position = "sticky",
             left = 30,
-            background = "#202020",
+            background = if (input$globalTheme == "dark" || is.null(input$globalTheme)) "#202020" else "#fff",
             zIndex = 1,
             borderRight = "2px solid #eee"
           )
@@ -475,14 +492,14 @@ server <- function(input, output, session) {
             cursor = "pointer",
             position = "sticky",
             left = 0,
-            background = "#202020",
+            background = if (input$globalTheme == "dark" || is.null(input$globalTheme)) "#202020" else "#fff",
             zIndex = 1
           ),
           headerStyle = list(
             cursor = "pointer",
             position = "sticky",
             left = 0,
-            background = "#202020",
+            background = if (input$globalTheme == "dark" || is.null(input$globalTheme)) "#202020" else "#fff",
             zIndex = 1
           )
         )
@@ -566,6 +583,13 @@ server <- function(input, output, session) {
 
   observeEvent(input$options, {
     updateF7Sheet("sheet1")
+  })
+
+  observe({
+    session$sendCustomMessage(
+      type = "global-theme-setup",
+      message = input$globalTheme
+    )
   })
 }
 
