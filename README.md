@@ -15,9 +15,9 @@ shiny::runGitHub("rstudio-global-2021-calendar", "divadnojnarg", ref = "shinyMob
 This app is a hybrid web app, which you can install on any mobile platform, with the 
 "add to homescreen feature". See [instructions](https://rinterface.github.io/shinyMobile/#add-the-pwa-to-your-desktop-apps).
 
-1                          |  2                        |  3                       
-:-------------------------:|:-------------------------:|:-------------------------:
-![](data/images/main.png)  |  ![](data/images/theme.png)  | ![](data/images/about.png)
+1                          |  2                        |                        
+:-------------------------:|:-------------------------:|
+![](data/images/main.png)  |  ![](data/images/about.png)  | 
 
 
 
