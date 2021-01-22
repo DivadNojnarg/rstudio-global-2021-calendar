@@ -269,7 +269,7 @@ server <- function(input, output, session) {
     }
     schedule$info <- schedule$talk_id
     common_vars <- c(
-      "id", "info", "talk_id", "type", "title_text", "name", "time",
+      "id", "info", "time", "title_text", "talk_id", "type" , "name",
       "duration", "track", "topic", "url"
     )
     schedule <- schedule[, common_vars]
